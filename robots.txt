@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://digibenz.com/sitemap.xml
