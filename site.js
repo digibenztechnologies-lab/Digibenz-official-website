@@ -3,10 +3,6 @@ document.addEventListener('DOMContentLoaded',()=>{
  const heroHeader=document.querySelector('.header.over-hero');
  if(heroHeader){const updateHeader=()=>heroHeader.classList.toggle('scrolled',window.scrollY>40);updateHeader();window.addEventListener('scroll',updateHeader,{passive:true})}
  if(menu&&links)menu.addEventListener('click',()=>{const open=links.classList.toggle('open');menu.setAttribute('aria-expanded',String(open));menu.textContent=open?'×':'☰'});
- const safeStorage={get(key){try{return window.localStorage.getItem(key)}catch{return null}},set(key,value){try{window.localStorage.setItem(key,value);return true}catch{return false}}};
- const banner=document.querySelector('.cookie');
- if(banner&&!safeStorage.get('digibenz-cookie-choice'))banner.classList.add('show');
- document.querySelectorAll('[data-cookie]').forEach(b=>b.addEventListener('click',()=>{safeStorage.set('digibenz-cookie-choice',b.dataset.cookie);banner?.classList.remove('show')}));
  const form=document.querySelector('#enquiry-form');
  if(form)form.addEventListener('submit',async e=>{
   e.preventDefault();if(!form.reportValidity())return;
