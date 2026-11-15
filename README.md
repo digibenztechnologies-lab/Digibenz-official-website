@@ -16,6 +16,8 @@ The contact and service enquiry forms send submissions to the Supabase Edge Func
 
 The Supabase project reference is `isezeiucecnxteiiqdzd`. Configure the Edge Function allowed origins for the production domain before deployment.
 
+Optional automated email notifications are documented in [`SUPABASE_EMAIL_NOTIFICATIONS.md`](SUPABASE_EMAIL_NOTIFICATIONS.md). They use a separate Supabase Database Webhook and Edge Function, plus server-side Resend secrets. These dashboard credentials and webhook must be configured before notifications can send.
+
 ## Preview and deployment
 
 For a local preview, serve this directory as a static site with `index.html` as the entry page. Keep the relative directory structure intact so page links, portfolio assets and styles resolve.
