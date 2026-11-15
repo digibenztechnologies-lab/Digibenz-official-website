@@ -15,6 +15,32 @@ const allowedOrigins = new Set([
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonePattern = /^[+0-9() .-]{8,24}$/;
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_LIMIT = 5;
+const recentSubmissions = new Map<string, number[]>();
+
+async function isRateLimited(req: Request): Promise<boolean> {
+  const address = req.headers.get("cf-connecting-ip") ??
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  if (!address) return false;
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(address));
+  const key = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  const now = Date.now();
+  const recent = (recentSubmissions.get(key) ?? []).filter((time) => now - time < RATE_WINDOW_MS);
+  if (recent.length >= RATE_LIMIT) {
+    recentSubmissions.set(key, recent);
+    return true;
+  }
+  recent.push(now);
+  recentSubmissions.set(key, recent);
+  if (recentSubmissions.size > 5000) {
+    for (const [oldKey, times] of recentSubmissions) {
+      if (!times.some((time) => now - time < RATE_WINDOW_MS)) recentSubmissions.delete(oldKey);
+      if (recentSubmissions.size <= 4000) break;
+    }
+  }
+  return false;
+}
 
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin") ?? "";
@@ -61,6 +87,12 @@ Deno.serve(async (req: Request) => {
     }
 
     const services_required = rawServices.map((service: string) => service.trim()).filter(Boolean);
+    if (await isRateLimited(req)) {
+      return Response.json(
+        { error: "Too many enquiries were sent from this connection. Please try again in a few minutes." },
+        { status: 429, headers: { ...cors(origin), "Retry-After": "600" } },
+      );
+    }
     const url = Deno.env.get("SUPABASE_URL");
     const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!url || !key) throw new Error("Server configuration is incomplete.");
