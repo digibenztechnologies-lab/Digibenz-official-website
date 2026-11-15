@@ -12,11 +12,11 @@ Portfolio artwork is stored locally under `assets/portfolio/` so it loads with t
 
 ## Contact form
 
-The contact and service enquiry forms send submissions to the Supabase Edge Function `submit-website-enquiry`. The function stores the enquiries in the configured Supabase project. Name, mobile number and email are required; business name and message are optional. Keep Supabase service-role credentials on the server and out of the browser code.
+The contact and service enquiry forms send submissions to the Supabase Edge Function `submit-website-enquiry`. The function stores submissions in `public.website_enquiries`. Name, mobile number and email are required; business name, message, industry, selected services, budget and website URL are optional. Keep Supabase service-role credentials on the server and out of the browser code.
 
 The Supabase project reference is `isezeiucecnxteiiqdzd`. Configure the Edge Function allowed origins for the production domain before deployment.
 
-Optional automated email notifications are documented in [`SUPABASE_EMAIL_NOTIFICATIONS.md`](SUPABASE_EMAIL_NOTIFICATIONS.md). They use a separate Supabase Database Webhook and Edge Function, plus server-side Resend secrets. These dashboard credentials and webhook must be configured before notifications can send.
+Automated email notification setup is documented in [`SUPABASE_EMAIL_NOTIFICATIONS.md`](SUPABASE_EMAIL_NOTIFICATIONS.md). It uses a separate Supabase Database Webhook and Edge Function, plus server-side Resend secrets. Additive database changes are recorded in `supabase/migrations/`.
 
 ## Preview and deployment
 

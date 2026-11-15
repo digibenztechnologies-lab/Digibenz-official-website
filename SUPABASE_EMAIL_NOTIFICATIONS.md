@@ -4,9 +4,9 @@ The static site stores inquiries through the existing `submit-website-enquiry` E
 
 ## Existing data contract
 
-The live table is `public.website_enquiries`. It currently stores `id`, `full_name`, optional `business_name`, `mobile_number`, `email_address`, optional `message`, consent timestamps, `submitted_at`, and an internal status. Row Level Security is enabled and the table has no public policies. No schema change is required for email notifications.
+The live table is `public.website_enquiries`. It stores `id`, `full_name`, optional `business_name`, `mobile_number`, `email_address`, optional `message`, `industry`, selected services, monthly budget, website URL, consent timestamps, `submitted_at`, and an internal status. Row Level Security remains enabled and the table has no public policies. The four optional fields were added through an additive migration; existing records are preserved.
 
-The website currently submits some optional details such as industry and service selection, but the live table does not have columns for them and the existing submit function does not store them. Notification emails therefore include the fields actually persisted by the current schema: name, email, phone, business name, message, submission time, and inquiry ID. Do not add these unpersisted fields to the email until the database contract is deliberately extended.
+The existing form handler sends all of those optional details to Supabase, and the updated submission function persists them. Notification emails include the actual stored form fields, submission time, and inquiry ID.
 
 ## One-time Resend setup
 

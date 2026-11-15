@@ -6,6 +6,10 @@ type EnquiryRecord = {
   business_name: string | null;
   mobile_number: string;
   email_address: string;
+  industry: string | null;
+  services_required: string[];
+  monthly_budget: string | null;
+  website_url: string | null;
   message: string | null;
   submitted_at: string;
 };
@@ -71,9 +75,19 @@ function validateEvent(payload: unknown): EnquiryRecord | null {
     typeof record.email_address !== "string" || record.email_address.length > 254 ||
     !emailPattern.test(record.email_address) ||
     (record.business_name !== null && typeof record.business_name !== "string") ||
+    (record.industry !== null && typeof record.industry !== "string") ||
+    !Array.isArray(record.services_required) ||
+    !record.services_required.every((service) => typeof service === "string" && service.length <= 120) ||
+    record.services_required.length > 20 ||
+    (record.monthly_budget !== null && typeof record.monthly_budget !== "string") ||
+    (record.website_url !== null && typeof record.website_url !== "string") ||
     (record.message !== null && typeof record.message !== "string") ||
     typeof record.submitted_at !== "string" ||
-    (record.business_name?.length ?? 0) > 180 || (record.message?.length ?? 0) > 5000
+    (record.business_name?.length ?? 0) > 180 ||
+    (record.industry?.length ?? 0) > 120 ||
+    (record.monthly_budget?.length ?? 0) > 120 ||
+    (record.website_url?.length ?? 0) > 2048 ||
+    (record.message?.length ?? 0) > 5000
   ) return null;
 
   return record as EnquiryRecord;
@@ -84,6 +98,16 @@ function buildHtml(record: EnquiryRecord): string {
   const business = record.business_name?.trim()
     ? escapeHtml(record.business_name.trim())
     : "Not provided";
+  const industry = record.industry?.trim() ? escapeHtml(record.industry.trim()) : "Not provided";
+  const services = record.services_required.length
+    ? escapeHtml(record.services_required.join(", "))
+    : "Not provided";
+  const budget = record.monthly_budget?.trim()
+    ? escapeHtml(record.monthly_budget.trim())
+    : "Not provided";
+  const website = record.website_url?.trim()
+    ? escapeHtml(record.website_url.trim())
+    : "Not provided";
   const message = record.message?.trim()
     ? escapeHtml(record.message.trim())
     : "No message provided.";
@@ -93,6 +117,10 @@ function buildHtml(record: EnquiryRecord): string {
     ["Email address", escapeHtml(record.email_address)],
     ["Phone number", escapeHtml(record.mobile_number)],
     ["Business name", business],
+    ["Industry", industry],
+    ["Services requested", services],
+    ["Monthly budget", budget],
+    ["Website", website],
     ["Submitted", submittedAt],
     ["Inquiry ID", escapeHtml(record.id)],
   ].map(([label, value]) =>
@@ -135,6 +163,10 @@ Deno.serve(withSupabase({ auth: "secret" }, async (req: Request) => {
     `Email address: ${visitorEmail}`,
     `Phone number: ${record.mobile_number}`,
     `Business name: ${record.business_name?.trim() || "Not provided"}`,
+    `Industry: ${record.industry?.trim() || "Not provided"}`,
+    `Services requested: ${record.services_required.join(", ") || "Not provided"}`,
+    `Monthly budget: ${record.monthly_budget?.trim() || "Not provided"}`,
+    `Website: ${record.website_url?.trim() || "Not provided"}`,
     `Submitted: ${formatSubmittedAt(record.submitted_at)}`,
     `Inquiry ID: ${record.id}`,
     "",
