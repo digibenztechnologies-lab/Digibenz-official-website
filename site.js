@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded',()=>{
+ const heroVideo=document.querySelector('.hero-video');
+ if(heroVideo&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){heroVideo.pause();heroVideo.removeAttribute('autoplay');}
  const menu=document.querySelector('.menu'),links=document.querySelector('.links');
  const heroHeader=document.querySelector('.header.over-hero');
  if(heroHeader){const updateHeader=()=>heroHeader.classList.toggle('scrolled',window.scrollY>40);updateHeader();window.addEventListener('scroll',updateHeader,{passive:true})}
